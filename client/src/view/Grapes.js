@@ -14,7 +14,7 @@ const GEditorExample = ()=>{
             },
             storageManager: {
                 type: 'remote',
-                stepsBeforeSave: 3,
+                stepsBeforeSave: 1,
                 contentTypeJson: true,
                 storeComponents: true,
                 storeStyles: true,
