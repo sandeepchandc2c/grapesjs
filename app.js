@@ -8,7 +8,7 @@ const hb = require("handlebars")
 const puppeter = require("puppeteer")
 var HTMLParser = require('node-html-parser');
 app.use(express.static('public'))
- mongoose.connect('mongodb://ec2-3-8-84-88.eu-west-2.compute.amazonaws.com:27017/my_database', {
+ mongoose.connect('mongodb://ec2-3-10-227-211.eu-west-2.compute.amazonaws.com/my_database', {
         useNewUrlParser: true,
         useUnifiedTopology: true,
         useFindAndModify: false,
@@ -171,6 +171,11 @@ app.get("/createhtml",async(req, res)=>{
         console.log("err", e)
       }
     })
+app.use(express.static('client/build'));
+
+    app.get('*', (req, res) => {
+       res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
+    });
 app.listen(3001, ()=>{
     console.log("Server Started")
 })
