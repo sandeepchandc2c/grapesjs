@@ -23,8 +23,8 @@ const GEditorExample = ()=>{
                 headers: {
                 'Content-Type': 'application/json',
                 },
-                urlStore: 'http://localhost:3001/getdata',
-                urlLoad: 'http://localhost:3001/getdata',
+                urlStore: 'http://ec2-3-10-227-211.eu-west-2.compute.amazonaws.com:3001/getdata',
+                urlLoad: 'http://ec2-3-10-227-211.eu-west-2.compute.amazonaws.com:3001/getdata',
                }
           });
     })
