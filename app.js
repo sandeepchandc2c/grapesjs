@@ -3,12 +3,36 @@ const app = express()
 const fs = require("fs")
 const mongoose = require('mongoose');
 const EmailEditor = require("./model")
-// var pdf = require('html-pdf');
+var extractCss = require('extract-css');
 const hb = require("handlebars")
 const puppeter = require("puppeteer")
 var HTMLParser = require('node-html-parser');
+const cors = require("cors")
+ const path = require("path")
+var shell = require('shelljs');
 app.use(express.static('public'))
- mongoose.connect('mongodb://ec2-3-10-227-211.eu-west-2.compute.amazonaws.com/my_database', {
+app.use(express.static('pdf2'))
+// app.use(cors())
+var multer  = require('multer')
+var storage = multer.diskStorage({
+  destination: function(req, file, cb)
+  {
+    cb(null, 'uploads')
+  },
+  filename: function (req, file, cb) {
+   if(file.originalname.match(/\.(pdf)$/))
+    {
+        cb(null, Date.now()+'-'+file.originalname)
+    }
+    else {
+      return cb(new Error('only pdf format'))
+    }
+    
+    
+  }
+})
+var upload = multer({storage: storage}).single("file")
+ mongoose.connect('mongodb://localhost/my_database', {
         useNewUrlParser: true,
         useUnifiedTopology: true,
         useFindAndModify: false,
@@ -171,11 +195,40 @@ app.get("/createhtml",async(req, res)=>{
         console.log("err", e)
       }
     })
-app.use(express.static('client/build'));
+app.post("/upload", upload, async(req, res)=>{
+  const {file} = req
+  const pp = `${__dirname}/uploads/${file.filename}`
+  console.log(file)
+  shell.cd("./pdf2")
+  shell.exec(`pdf2htmlEX.exe ${pp}`)
+  let htmlfile = file.filename.replace(".pdf", ".html")
+  console.log(htmlfile)
+  let data = fs.readFileSync(`${__dirname}/pdf2/${htmlfile}`)
+  
+  fs.unlinkSync(pp);
+  let result = data.toString() 
+  res.status(200).json(result)
+})
+app.get("/html", async(req, res)=>{
+ let data = fs.readFileSync(`${__dirname}/pdf2/1626698781679-sample.html`)
+ var options = {
+  url: './',
+  applyStyleTags: true,
+  removeStyleTags: true,
+  applyLinkTags: true,
+  removeLinkTags: true,
+  preserveMediaQueries: false
+};
 
-    app.get('*', (req, res) => {
-       res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
-    });
+let result = data.toString() 
+extractCss(result, options, function (err, html, css) {
+  let data = {}
+  data["gjs-css"] = css
+  data["gjs-html"] = html
+    return res.status(200).json(data)
+});
+})
+
 app.listen(3001, ()=>{
     console.log("Server Started")
 })
