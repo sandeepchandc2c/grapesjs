@@ -26,7 +26,7 @@ const GEditorExample = ()=>{
                 urlStore: 'http://ec2-3-10-227-211.eu-west-2.compute.amazonaws.com:3001/getdata',
                 urlLoad: 'http://ec2-3-10-227-211.eu-west-2.compute.amazonaws.com:3001/html',
                }
-          });
+          }); 
     })
     return <div id="gjs"></div>
 }
