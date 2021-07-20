@@ -31,8 +31,9 @@ var storage = multer.diskStorage({
     
   }
 })
+
 var upload = multer({storage: storage}).single("file")
- mongoose.connect('mongodb://localhost/my_database', {
+ mongoose.connect('mongodb://ec2-3-8-84-88.eu-west-2.compute.amazonaws.com:27017/my_database', {
         useNewUrlParser: true,
         useUnifiedTopology: true,
         useFindAndModify: false,
