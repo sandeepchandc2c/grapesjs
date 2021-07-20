@@ -61,12 +61,10 @@ app.get("/getdata",async(req, res)=>{
      return res.status(200).json([])
 })
 app.post("/getdata", async(req, res)=>{
-    fs.writeFileSync(__dirname+"/abc.json", JSON.stringify(req.body))
     // const data = new EmailEditor({
     //     data: JSON.stringify(req.body)
     // })
     // await data.save()
-    // console.log("saved")
     await EmailEditor.findByIdAndUpdate({ _id: "60e2f550522b991fe4b496ec"}, {
         data:  JSON.stringify(req.body)
     })
@@ -210,7 +208,8 @@ app.post("/upload", upload, async(req, res)=>{
   res.status(200).json(result)
 })
 app.get("/html", async(req, res)=>{
- let data = fs.readFileSync(`${__dirname}/pdf2/1626698781679-sample.html`)
+  console.log()
+ let data = fs.readFileSync(`${__dirname}/pdf2/1626778619136-tata.html`)
  var options = {
   url: './',
   applyStyleTags: true,
@@ -223,11 +222,22 @@ app.get("/html", async(req, res)=>{
 let result = data.toString() 
 extractCss(result, options, function (err, html, css) {
   let data = {}
+   let rr = HTMLParser.parse(result)
   data["gjs-css"] = css
-  data["gjs-html"] = html
+  data["gjs-html"] = rr.querySelector("body").toString()
+  console.log("working")
     return res.status(200).json(data)
-});
 })
+})
+// const jj=  await EmailEditor.findOne({ _id: "60e2f550522b991fe4b496ec"})
+//        if(jj.data != undefined)
+//        {
+//          let data = JSON.parse(jj.data)
+//          return res.status(200).json(data)
+//        }
+//      return res.status(200).json([])
+
+
 
 app.listen(3001, ()=>{
     console.log("Server Started")

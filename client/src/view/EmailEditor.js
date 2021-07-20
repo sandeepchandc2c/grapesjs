@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import EmailEditor from 'react-email-editor';
+import Axios from "axios"
 const EMAIL = ()=>{
 
     const emailEditorRef = useRef(null);
@@ -11,10 +12,11 @@ const EMAIL = ()=>{
       });
     };
   
-    const onLoad = () => {
+    const onLoad = async() => {
+      const data = await Axios.get("http://localhost:3001/html")
       // you can load your template here;
       // const templateJson = {};
-      // emailEditorRef.current.editor.loadDesign(templateJson);
+      emailEditorRef.current.editor.loadDesign(data.data);
     };
   
     return (
