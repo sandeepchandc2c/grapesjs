@@ -4,12 +4,12 @@ import {Link} from "react-router-dom"
 const Sheets = ()=>{
     const [sheets, setsheet] = useState([])
     useEffect(()=>{
-    axios("http://ec2-18-130-183-2.eu-west-2.compute.amazonaws.com:3001/sheet").then(data=>{
+    axios.get("http://ec2-18-130-183-2.eu-west-2.compute.amazonaws.com:3001/sheet").then(data=>{
         console.log("rews", data.data)
         setsheet(data.data)})
     }, [])
     const download = async(id)=>{
-      axios("http://ec2-18-130-183-2.eu-west-2.compute.amazonaws.com:3001/download/"+id)
+      axios.get("http://ec2-18-130-183-2.eu-west-2.compute.amazonaws.com:3001/download/"+id)
     //   console.log(data)
     //   let blob = new Blob([data.data], { type: 'pdf' });
 
