@@ -250,6 +250,10 @@ app.get("/download/:id", async(req, res)=>{
   let data =  `${__dirname}/pdf2/${jj.name}`
   let html = fs.readFileSync(data)
   const template = hb.compile(html, {strict: true})
+  let example = {
+        
+  }
+  
   const rresult = template(example)
   const browser = await puppeter.launch({
     headless: true
