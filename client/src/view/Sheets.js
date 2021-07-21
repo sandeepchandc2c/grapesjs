@@ -4,12 +4,12 @@ import {Link} from "react-router-dom"
 const Sheets = ()=>{
     const [sheets, setsheet] = useState([])
     useEffect(()=>{
-    axios("http://ec2-3-10-227-211.eu-west-2.compute.amazonaws.com:3001/sheet").then(data=>{
+    axios("http://ec2-18-130-183-2.eu-west-2.compute.amazonaws.com:3001/sheet").then(data=>{
         console.log("rews", data.data)
         setsheet(data.data)})
     }, [])
     const download = async(id)=>{
-      const data = await axios("http://ec2-3-10-227-211.eu-west-2.compute.amazonaws.com:3001/download/"+id)
+      const data = await axios("http://ec2-18-130-183-2.eu-west-2.compute.amazonaws.com:3001/download/"+id)
       console.log(data.data)
       window.open(data.data)
       

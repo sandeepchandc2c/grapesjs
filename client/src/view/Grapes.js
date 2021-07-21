@@ -24,8 +24,8 @@ const GEditorExample = ()=>{
                 headers: {
                 'Content-Type': 'application/json',
                 },
-                urlStore: `http://ec2-3-10-227-211.eu-west-2.compute.amazonaws.com:3001/getdata/${id}`,
-                urlLoad: `http://ec2-3-10-227-211.eu-west-2.compute.amazonaws.com:3001/html/${id}`,
+                urlStore: `http://ec2-18-130-183-2.eu-west-2.compute.amazonaws.com:3001/getdata/${id}`,
+                urlLoad: `http://ec2-18-130-183-2.eu-west-2.compute.amazonaws.com:3001/html/${id}`,
                }
           }); 
     })
