@@ -10,8 +10,7 @@ var HTMLParser = require('node-html-parser');
 const cors = require("cors")
  const path = require("path")
 var shell = require('shelljs');
-app.use(express.static('public'))
-app.use(express.static('pdf2'))
+
 // app.use(cors())
 var multer  = require('multer')
 const sheets = require("./model/sheets")
@@ -51,6 +50,7 @@ app.use(function(req, res, next) {
     next();
     });
 app.use(express.static('client/build'));
+app.use(express.static('pdf2'))
 app.get("/getdata",async(req, res)=>{
 //    const data =  fs.readFileSync(__dirname+"/abc.json" )
 //    const result = JSON.parse(data)
@@ -257,3 +257,4 @@ app.get('*', (req, res) => {
 app.listen(3001, ()=>{
     console.log("Server Started")
 })
+// cxawLcuWKItQAL4sS$uUgMHYRz9GC.GU
