@@ -13,7 +13,7 @@ var shell = require('shelljs');
 
 // app.use(cors())
 var multer  = require('multer')
-const sheets = require("./model/sheets")
+const SheetsModel = require("./model/sheets")
 var storage = multer.diskStorage({
   destination: function(req, file, cb)
   {
@@ -62,14 +62,14 @@ app.get("/getdata",async(req, res)=>{
        }
      return res.status(200).json([])
 })
-app.post("/getdata", async(req, res)=>{
-    // const data = new EmailEditor({
-    //     data: JSON.stringify(req.body)
-    // })
-    // await data.save()
-    await EmailEditor.findByIdAndUpdate({ _id: "60e2f550522b991fe4b496ec"}, {
-        data:  JSON.stringify(req.body)
-    })
+app.post("/getdata/:id", async(req, res)=>{
+    const {id} = req.params
+    var idd = mongoose.Types.ObjectId(id);
+    console.log(idd)
+    await EmailEditor.findOneAndUpdate({ sheet:idd}, {
+        data:  JSON.stringify(req.body),
+        sheet: idd
+    } , {upsert: true})
     res.status(200).json("done")
    })
 app.get("/createhtml",async(req, res)=>{
@@ -196,7 +196,8 @@ app.get("/createhtml",async(req, res)=>{
       }
     })
 app.post("/upload", upload, async(req, res)=>{
-  const {file} = req
+  try{
+    const {file} = req
   const pp = `${__dirname}/uploads/${file.filename}`
   console.log(file)
   shell.cd("./pdf2")
@@ -204,21 +205,26 @@ app.post("/upload", upload, async(req, res)=>{
   let htmlfile = file.filename.replace(".pdf", ".html")
   console.log(htmlfile)
   let data = fs.readFileSync(`${__dirname}/pdf2/${htmlfile}`)
-  const sh = new sheets({
+  const sh = new SheetsModel({
     name: htmlfile
   })
   await sh.save()
   fs.unlinkSync(pp);
   let result = data.toString() 
   res.status(200).json(result)
+  }
+  catch(e)
+  {
+    console.log("tt")
+  }
 })
 app.get("/sheet", async(req, res)=>{
-  let data = await sheets.find()
+  let data = await SheetsModel.find()
   return res.status(200).json(data)
 })
 app.get("/html/:id", async(req, res)=>{
   const {id} = req.params
-  const jj=  await sheets.findOne({ _id: id})
+  const jj=  await SheetsModel.findOne({ _id: id})
   if(jj)
   {
     let data = fs.readFileSync(`${__dirname}/pdf2/${jj.name}`)
@@ -245,22 +251,33 @@ app.get("/html/:id", async(req, res)=>{
 })
 
 app.get("/download/:id", async(req, res)=>{
+try{
   const {id} = req.params
-  const jj=  await sheets.findOne({ _id: id})
-  let data =  `${__dirname}/pdf2/${jj.name}`
-  let html = fs.readFileSync(data)
+  const jj=  await EmailEditor.findOne({ sheet: id}).populate("sheet")
+  let data =  `${__dirname}/pdf2/${jj.sheet.name}`
+  let dataa = JSON.parse(jj.data)
+  let css = dataa["gjs-css"]
+  let body = dataa["gjs-html"]
+  let html = `<!doctype html>
+  <html lang="en"
+  ><head><meta charset="utf-8">
+      <style>
+      ${css}
+      </style>
+  </head>
+  <body>
+    ${body}
+  </body>
+  <html>`
   const template = hb.compile(html, {strict: true})
-  let example = {
-        
-  }
-  
-  const rresult = template(example)
+  const rresult = template()
   const browser = await puppeter.launch({
     headless: true
   })
   const page = await browser.newPage()
   await page.setContent(rresult)
-  await page.pdf({path: `/upload/${jj.name}`, displayHeaderFooter: false,
+  let name = jj.sheet.name.replace("html", "pdf")
+  await page.pdf({path: `${__dirname}/uploads/${name}`, displayHeaderFooter: false,
   printBackground: true,
   pageRanges: '1-2',
   height: 220+'mm', 
@@ -272,8 +289,14 @@ app.get("/download/:id", async(req, res)=>{
     left: 0,
   },})
   await browser.close()
-  let ress = `${__dirname}/uploads/${jj.name}`
-  res.download(data);
+  
+  let ress = `${__dirname}/uploads/${name}`
+  res.download(ress);
+}
+catch(e)
+{
+  console.log("error",e)
+}
 
 })
 app.get('*', (req, res) => {

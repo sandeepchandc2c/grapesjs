@@ -10,13 +10,14 @@ const Sheets = ()=>{
     }, [])
     const download = async(id)=>{
       const data = await axios("http://ec2-18-130-183-2.eu-west-2.compute.amazonaws.com:3001/download/"+id)
-      let blob = new Blob([data.data], { type: 'csv' });
+    //   console.log(data)
+    //   let blob = new Blob([data.data], { type: 'pdf' });
 
-        let url = window.URL.createObjectURL(blob);
-        let link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download','.csv');
-        link.click();
+    //     let url = window.URL.createObjectURL(blob);
+    //     let link = document.createElement('a');
+    //     link.href = url;
+    //     link.setAttribute('download','abc.pdf');
+    //     link.click();
       
     }
      return (

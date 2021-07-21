@@ -1,7 +1,10 @@
 const mongoose = require('mongoose')
 
 const Editor = new  mongoose.Schema({
-  data: String
-
+  data: String,
+  sheet: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "sheets"
+  }
 }, {timestamps: true})
-module.exports =  mongoose.model('form', Editor);
+module.exports =  mongoose.model('forms', Editor);
