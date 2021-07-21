@@ -9,15 +9,8 @@ const Sheets = ()=>{
         setsheet(data.data)})
     }, [])
     const download = async(id)=>{
-      axios.get("http://ec2-18-130-183-2.eu-west-2.compute.amazonaws.com:3001/download/"+id)
-    //   console.log(data)
-    //   let blob = new Blob([data.data], { type: 'pdf' });
-
-    //     let url = window.URL.createObjectURL(blob);
-    //     let link = document.createElement('a');
-    //     link.href = url;
-    //     link.setAttribute('download','abc.pdf');
-    //     link.click();
+     window.open("http://ec2-18-130-183-2.eu-west-2.compute.amazonaws.com:3001/download/"+id)
+     
       
     }
      return (
