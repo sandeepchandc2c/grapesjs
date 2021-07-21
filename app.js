@@ -248,6 +248,27 @@ app.get("/download/:id", async(req, res)=>{
   const {id} = req.params
   const jj=  await sheets.findOne({ _id: id})
   let data =  `${__dirname}/pdf2/${jj.name}`
+  let html = fs.readFileSync(data)
+  const template = hb.compile(html, {strict: true})
+  const rresult = template(example)
+  const browser = await puppeter.launch({
+    headless: true
+  })
+  const page = await browser.newPage()
+  await page.setContent(rresult)
+  await page.pdf({path: `/upload/${jj.name}`, displayHeaderFooter: false,
+  printBackground: true,
+  pageRanges: '1-2',
+  height: 220+'mm', 
+  width: 275+'mm', 
+  margin: {
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+  },})
+  await browser.close()
+  let ress = `${__dirname}/uploads/${jj.name}`
   res.download(data);
 
 })
