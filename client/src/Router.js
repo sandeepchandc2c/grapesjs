@@ -1,27 +1,26 @@
-
-import React, {Suspense, lazy} from "react"
-
+import React, { Suspense, lazy, Component } from "react";
 import {
   Route,
   BrowserRouter as Router,
   Switch,
 } from "react-router-dom";
-import "./style.scss"
-const UploadComponent = lazy(() => import("./view/upload"));
+import KBC from "./kbc"
 
-const  GEditorExample  = lazy(() => import("./view/Grapes"));
-const AllRouter = () => {
-  return (
-    <Suspense fallback={<h1>Loading....</h1>}>
-        <Router>
-        <Switch>
-            <Route path={"/"} exact Component={UploadComponent}></Route>
-        </Switch>
-    </Router>
-    </Suspense>
-)
 
-}
+class Routing extends Component {
+    render() {
+      return (
+          <Router>
+              <Switch>
+                  <Route path={"/"} exact Component={KBC}></Route>
+              </Switch>
+          </Router>
+      )
+    
+    
+    
+    }}
 
-export default AllRouter;
+export default Routing;
+ 
  

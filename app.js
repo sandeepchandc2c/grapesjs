@@ -14,6 +14,7 @@ app.use(express.static('public'))
 app.use(express.static('pdf2'))
 // app.use(cors())
 var multer  = require('multer')
+const sheets = require("./model/sheets")
 var storage = multer.diskStorage({
   destination: function(req, file, cb)
   {
@@ -33,7 +34,7 @@ var storage = multer.diskStorage({
 })
 
 var upload = multer({storage: storage}).single("file")
- mongoose.connect('mongodb://ec2-3-8-84-88.eu-west-2.compute.amazonaws.com:27017/my_database', {
+mongoose.connect('mongodb://CallingServiceUser:user0000912939123@ec2-3-8-84-88.eu-west-2.compute.amazonaws.com:27017/CallingService', {
         useNewUrlParser: true,
         useUnifiedTopology: true,
         useFindAndModify: false,
@@ -203,42 +204,53 @@ app.post("/upload", upload, async(req, res)=>{
   let htmlfile = file.filename.replace(".pdf", ".html")
   console.log(htmlfile)
   let data = fs.readFileSync(`${__dirname}/pdf2/${htmlfile}`)
-  
+  const sh = new sheets({
+    name: htmlfile
+  })
+  await sh.save()
   fs.unlinkSync(pp);
   let result = data.toString() 
   res.status(200).json(result)
 })
-app.get("/html", async(req, res)=>{
-  console.log()
- let data = fs.readFileSync(`${__dirname}/pdf2/1626784839606-tata_1-12.html`)
- var options = {
-  url: './',
-  applyStyleTags: true,
-  removeStyleTags: true,
-  applyLinkTags: true,
-  removeLinkTags: true,
-  preserveMediaQueries: false
-};
-
-let result = data.toString() 
-extractCss(result, options, function (err, html, css) {
-  let data = {}
-   let rr = HTMLParser.parse(result)
-  data["gjs-css"] = css
-  data["gjs-html"] = rr.querySelector("body").toString()
-  console.log("working")
-    return res.status(200).json(data)
+app.get("/sheet", async(req, res)=>{
+  let data = await sheets.find()
+  return res.status(200).json(data)
 })
+app.get("/html/:id", async(req, res)=>{
+  const {id} = req.params
+  const jj=  await sheets.findOne({ _id: id})
+  if(jj)
+  {
+    let data = fs.readFileSync(`${__dirname}/pdf2/${jj.name}`)
+    var options = {
+     url: './',
+     applyStyleTags: true,
+     removeStyleTags: true,
+     applyLinkTags: true,
+     removeLinkTags: true,
+     preserveMediaQueries: false
+   };
+   
+   let result = data.toString() 
+   extractCss(result, options, function (err, html, css) {
+     let data = {}
+      let rr = HTMLParser.parse(result)
+     data["gjs-css"] = css
+     data["gjs-html"] = rr.querySelector("body").toString()
+     console.log("working")
+       return res.status(200).json(data)
+   })
+  }
+
 })
-// const jj=  await EmailEditor.findOne({ _id: "60e2f550522b991fe4b496ec"})
-//        if(jj.data != undefined)
-//        {
-//          let data = JSON.parse(jj.data)
-//          return res.status(200).json(data)
-//        }
-//      return res.status(200).json([])
 
+app.get("/download/:id", async(req, res)=>{
+  const {id} = req.params
+  const jj=  await sheets.findOne({ _id: id})
+  let data =  `${__dirname}/pdf2/${jj.name}`
+  return res.status(200).json(data)
 
+})
 
 app.listen(3001, ()=>{
     console.log("Server Started")

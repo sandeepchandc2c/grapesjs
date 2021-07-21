@@ -9,7 +9,7 @@ function Upload() {
     const config = {headers: {
       'content-type': 'multipart/form-data'
     }}
-    const res = await  axios.post("http://localhost:3001/upload", formdata,config 
+    const res = await  axios.post("http://ec2-3-10-227-211.eu-west-2.compute.amazonaws.com:3001/upload", formdata,config 
       )
       console.log(res.data)
   }
