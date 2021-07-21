@@ -50,7 +50,7 @@ app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Credentials", true)
     next();
     });
-
+app.use(express.static('client/build'));
 app.get("/getdata",async(req, res)=>{
 //    const data =  fs.readFileSync(__dirname+"/abc.json" )
 //    const result = JSON.parse(data)
@@ -251,7 +251,9 @@ app.get("/download/:id", async(req, res)=>{
   return res.status(200).json(data)
 
 })
-
+app.get('*', (req, res) => {
+  res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
+});
 app.listen(3001, ()=>{
     console.log("Server Started")
 })
