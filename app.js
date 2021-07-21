@@ -248,7 +248,7 @@ app.get("/download/:id", async(req, res)=>{
   const {id} = req.params
   const jj=  await sheets.findOne({ _id: id})
   let data =  `${__dirname}/pdf2/${jj.name}`
-  return res.status(200).json(data)
+  res.download(data);
 
 })
 app.get('*', (req, res) => {
