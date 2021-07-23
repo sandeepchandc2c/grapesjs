@@ -200,7 +200,7 @@ app.post("/upload", upload, async(req, res)=>{
     const {file} = req
   const pp = `${__dirname}/uploads/${file.filename}`
   console.log(file)
-  shell.cd("./pdf2")
+  shell.cd(__dirname+"/pdf2")
   shell.exec(`pdf2htmlEX.exe ${pp}`)
   let htmlfile = file.filename.replace(".pdf", ".html")
   console.log(htmlfile)

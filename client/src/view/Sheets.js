@@ -6,25 +6,37 @@ import { Row, Col, Table, Card, CardBody } from "reactstrap"
 const Sheets = ()=>{
     const [sheets, setsheet] = useState([])
     useEffect(()=>{
-    axios.get("http://ec2-18-130-183-2.eu-west-2.compute.amazonaws.com:3001/sheet").then(data=>{
+    axios.get("http://localhost:3001/sheet").then(data=>{
         console.log("rews", data.data)
         setsheet(data.data)})
     }, [])
     const download = async(id)=>{
-     window.open("http://ec2-18-130-183-2.eu-west-2.compute.amazonaws.com:3001/download/"+id)
+     window.open("http://localhost:3001/download/"+id)
      
       
     }
      return (
-      <Row >
+      <Row className="justify-content-center">
         <Col md={6}>
             <Card>
                 <CardBody>
-                {sheets.length > 0 && sheets.map(item=> <div key={item._id}>
-                    {item.name}
-                    <Link to={`/grapes/${item._id}`}>Edit</Link>
-                    <button onClick={()=>download(item._id)}>Download</button>
-                </div>) }
+                    <Table responsive bordered striped hover>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Edit</th>
+                                <th>Download</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {sheets.length > 0 && sheets.map(item=> <tr key={item._id}>
+                                <td>{item.name} </td>
+                                <td><Link to={`/grapes/${item._id}`}>Edit</Link></td>
+                                <td><button onClick={()=>download(item._id)}>Download</button></td>
+                            </tr>
+                           ) }
+                        </tbody>
+                    </Table>
                 </CardBody>
             </Card>
         </Col>
