@@ -277,6 +277,7 @@ app.get("/getsign", async(req, res)=>{
 app.get("/download/:id", async(req, res)=>{
 try{
   const {id} = req.params
+  console.log(id)
   const jj=  await EmailEditor.findOne({ sheet: id}).populate("sheet")
   let data =  `${__dirname}/pdf2/${jj.sheet.name}`
   let dataa = JSON.parse(jj.data)

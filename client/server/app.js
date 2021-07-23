@@ -2,7 +2,7 @@ const express = require("express")
 const app = express()
 const cors = require("cors")
 app.use(cors({
-    origin: "http://localhost:3000/"
+    origin: "http://ec2-18-130-183-2.eu-west-2.compute.amazonaws.com:3000/"
 }))
 app.use(express.json())
 

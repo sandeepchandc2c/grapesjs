@@ -9,7 +9,7 @@ function App() {
 
   const sigCanvas = useRef({});
   useEffect(()=>{
-    axios.get("http://localhost:3001/getsign").then(res=> console.log(res.data.signature))
+    axios.get("http://ec2-18-130-183-2.eu-west-2.compute.amazonaws.com:3001/getsign").then(res=> console.log(res.data.signature))
   }, [])
   /* a function that uses the canvas ref to clear the canvas 
   via a method given by react-signature-canvas */
@@ -21,7 +21,7 @@ function App() {
     const data = {
         data : sigCanvas.current.getTrimmedCanvas().toDataURL("image/png")
     }
-    await axios.post("http://localhost:3001/savesign", data)
+    await axios.post("http://ec2-18-130-183-2.eu-west-2.compute.amazonaws.com:3001/savesign", data)
     alert("saved!")
   }
 
