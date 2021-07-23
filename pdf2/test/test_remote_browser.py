@@ -20,7 +20,7 @@ ACCESS_KEY = os.environ.get('SAUCE_ACCESS_KEY')
 # The base url that remote browser will access
 # Usually a HTTP server should be set up in the folder containing the test cases
 # Also Sauce Connect should be enabled
-BASEURL='http://ec2-18-130-183-2.eu-west-2.compute.amazonaws.com:8000/'
+BASEURL='http://localhost:8000/'
 
 SAUCE_OPTIONS = {
     'record-video': 'false',
