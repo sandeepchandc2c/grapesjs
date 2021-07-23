@@ -2,7 +2,9 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import "grapesjs/dist/css/grapes.min.css"
+import 'reactjs-popup/dist/index.css';
 ReactDOM.render(
   <React.StrictMode>
     <App />
@@ -14,3 +16,6 @@ ReactDOM.render(
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
+
+
+// cxawLcuWKItQAL4sS$uUgMHYRz9GC.GU

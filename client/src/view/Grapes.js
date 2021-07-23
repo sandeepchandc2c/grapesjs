@@ -1,12 +1,11 @@
-import React, {useState, useEffect} from 'react';
+import React, {useEffect} from 'react';
 import grapesjs from  "grapesjs";
 import {useParams} from "react-router-dom"
 import gjsPresetWebage from "grapesjs-preset-webpage";
 const GEditorExample = ()=>{
-    const [editor, setEditor] =useState(null)
     const {id} = useParams()
     useEffect(()=>{
-        const editor = grapesjs.init({
+         grapesjs.init({
             // Indicate where to init the editor. You can also pass an HTMLElement
             container: '#gjs',
             plugins: [gjsPresetWebage],
