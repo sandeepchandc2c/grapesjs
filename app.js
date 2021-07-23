@@ -7,7 +7,7 @@ var extractCss = require('extract-css');
 const hb = require("handlebars")
 const puppeter = require("puppeteer")
 var HTMLParser = require('node-html-parser');
-const cors = require("cors")
+const Signature = require("./model/signature")
  const path = require("path")
 var shell = require('shelljs');
 
@@ -17,7 +17,7 @@ const SheetsModel = require("./model/sheets")
 var storage = multer.diskStorage({
   destination: function(req, file, cb)
   {
-    cb(null, 'uploads')
+     cb(null,  __dirname+'/uploads')
   },
   filename: function (req, file, cb) {
    if(file.originalname.match(/\.(pdf)$/))
@@ -215,7 +215,7 @@ app.post("/upload", upload, async(req, res)=>{
   }
   catch(e)
   {
-    console.log("tt")
+    console.log("tt",e)
   }
 })
 app.get("/sheet", async(req, res)=>{
@@ -249,7 +249,30 @@ app.get("/html/:id", async(req, res)=>{
   }
 
 })
-
+app.post("/savesign", async(req, res)=>{
+  try{
+    const {data} = req.body
+       const sign = new Signature({
+        signature: data
+       })
+       await sign.save()
+       return res.status(200).json("done")
+  }
+  catch(e)
+  {
+    console.log("err", e)
+  }
+})
+app.get("/getsign", async(req, res)=>{
+  try{
+       const sign = await Signature.findOne()
+       return res.status(200).json(sign)
+  }
+  catch(e)
+  {
+    console.log("err", e)
+  }
+})
 app.get("/download/:id", async(req, res)=>{
 try{
   const {id} = req.params
