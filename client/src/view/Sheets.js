@@ -6,12 +6,12 @@ import { Row, Col, Table, Card, CardBody } from "reactstrap"
 const Sheets = ()=>{
     const [sheets, setsheet] = useState([])
     useEffect(()=>{
-    axios.get("http://localhost:3001/sheet").then(data=>{
+    axios.get("http://ec2-18-130-183-2.eu-west-2.compute.amazonaws.com:3001/sheet").then(data=>{
         console.log("rews", data.data)
         setsheet(data.data)})
     }, [])
     const download = async(id)=>{
-     window.open("http://localhost:3001/download/"+id)
+     window.open("http://ec2-18-130-183-2.eu-west-2.compute.amazonaws.com:3001/download/"+id)
      
       
     }

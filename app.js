@@ -16,13 +16,14 @@ var multer  = require('multer')
 const SheetsModel = require("./model/sheets")
 var storage = multer.diskStorage({
   destination: function(req, file, cb)
-  {
+  { 
      cb(null,  __dirname+'/uploads')
   },
   filename: function (req, file, cb) {
    if(file.originalname.match(/\.(pdf)$/))
-    {
-        cb(null, Date.now()+'-'+file.originalname)
+    {   
+       let dd = file.originalname.replace(/ /g,'')
+        cb(null, Date.now()+'-'+dd)
     }
     else {
       return cb(new Error('only pdf format'))
