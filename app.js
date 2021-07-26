@@ -227,8 +227,9 @@ app.get("/html/:id", async(req, res)=>{
   const {id} = req.params
   const kj=  await EmailEditor.findOne({ sheet: id}).populate("sheet")
   if(kj)
-  {
-    return res.status(200).json(jj.data)
+  { 
+    let data = JSON.parse(kj.data)
+    return res.status(200).json(data)
   }
    else{
     const jj=  await SheetsModel.findOne({ _id: id})

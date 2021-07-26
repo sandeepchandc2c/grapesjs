@@ -11,7 +11,9 @@ const GEditorExample = ()=>{
       Axios.get(`http://localhost:3001/html/${id}`).then(res=>{setcss(res.data["gjs-css"])
       sethtml(res.data["gjs-html"])})
     },[])
-    
+    const createMarkup = ()=> { 
+      return {__html: html};
+    }
     useEffect(()=>{
          grapesjs.init({
             // Indicate where to init the editor. You can also pass an HTMLElement
@@ -39,7 +41,9 @@ const GEditorExample = ()=>{
     })
     if(html != "")
     {
-      return  <div>{html.toString()}</div>
+      return  <Suspense fallback="<h1>Loading...</h1>">
+        <div dangerouslySetInnerHTML={createMarkup()}></div>
+      </Suspense>
     }
     else return <h1>Loading...</h1>
 }
