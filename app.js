@@ -225,30 +225,37 @@ app.get("/sheet", async(req, res)=>{
 })
 app.get("/html/:id", async(req, res)=>{
   const {id} = req.params
-  const jj=  await SheetsModel.findOne({ _id: id})
-  if(jj)
+  const kj=  await EmailEditor.findOne({ sheet: id}).populate("sheet")
+  if(kj)
   {
-    let data = fs.readFileSync(`${__dirname}/pdf2/${jj.name}`)
-    var options = {
-     url: './',
-     applyStyleTags: true,
-     removeStyleTags: true,
-     applyLinkTags: true,
-     removeLinkTags: true,
-     preserveMediaQueries: false
-   };
-   
-   let result = data.toString() 
-   extractCss(result, options, function (err, html, css) {
-     let data = {}
-      let rr = HTMLParser.parse(result)
-     data["gjs-css"] = css
-     data["gjs-html"] = rr.querySelector("body").toString()
-     console.log("working")
-       return res.status(200).json(data)
-   })
+    return res.status(200).json(jj.data)
   }
-
+   else{
+    const jj=  await SheetsModel.findOne({ _id: id})
+    if(jj)
+    {
+      let data = fs.readFileSync(`${__dirname}/pdf2/${jj.name}`)
+      var options = {
+       url: './',
+       applyStyleTags: true,
+       removeStyleTags: true,
+       applyLinkTags: true,
+       removeLinkTags: true,
+       preserveMediaQueries: false
+     };
+     
+     let result = data.toString() 
+     extractCss(result, options, function (err, html, css) {
+       let data = {}
+        let rr = HTMLParser.parse(result)
+       data["gjs-css"] = css
+       data["gjs-html"] = rr.querySelector("body").toString()
+       console.log("working")
+         return res.status(200).json(data)
+     })
+    }
+  
+   }
 })
 app.post("/savesign", async(req, res)=>{
   try{

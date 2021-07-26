@@ -13,7 +13,7 @@ const EMAIL = ()=>{
     };
   
     const onLoad = async() => {
-      const data = await Axios.get("http://ec2-18-130-183-2.eu-west-2.compute.amazonaws.com:3001/html")
+      const data = await Axios.get("http://localhost:3001/html")
       // you can load your template here;
       // const templateJson = {};
       emailEditorRef.current.editor.loadDesign(data.data);

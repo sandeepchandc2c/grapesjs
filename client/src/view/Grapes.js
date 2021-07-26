@@ -1,9 +1,17 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState, Suspense} from 'react';
 import grapesjs from  "grapesjs";
 import {useParams} from "react-router-dom"
 import gjsPresetWebage from "grapesjs-preset-webpage";
+import Axios from "axios"
 const GEditorExample = ()=>{
     const {id} = useParams()
+    const [html, sethtml] = useState("")
+    const [css, setcss] = useState("")
+    useEffect(()=>{
+      Axios.get(`http://localhost:3001/html/${id}`).then(res=>{setcss(res.data["gjs-css"])
+      sethtml(res.data["gjs-html"])})
+    },[])
+    
     useEffect(()=>{
          grapesjs.init({
             // Indicate where to init the editor. You can also pass an HTMLElement
@@ -12,6 +20,8 @@ const GEditorExample = ()=>{
             pluginsOpts: {
               gjsPresetWebage: {},
             },
+            components: html,
+            style: css,
             storageManager: {
                 type: 'remote',
                 stepsBeforeSave: 1,
@@ -23,12 +33,15 @@ const GEditorExample = ()=>{
                 headers: {
                 'Content-Type': 'application/json',
                 },
-                urlStore: `http://ec2-18-130-183-2.eu-west-2.compute.amazonaws.com:3001/getdata/${id}`,
-                urlLoad: `http://ec2-18-130-183-2.eu-west-2.compute.amazonaws.com:3001/html/${id}`,
+                urlStore: `http://localhost:3001/getdata/${id}`,
                }
           }); 
     })
-    return <div id="gjs"></div>
+    if(html != "")
+    {
+      return  <div>{html.toString()}</div>
+    }
+    else return <h1>Loading...</h1>
 }
 
 export default GEditorExample
