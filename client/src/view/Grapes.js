@@ -3,9 +3,11 @@ import grapesjs from  "grapesjs";
 import {useParams} from "react-router-dom"
 import gjsPresetWebage from "grapesjs-preset-webpage";
 import Axios from "axios"
+import AutoSizer from "react-virtualized-auto-sizer"
+import renderHTML from 'react-render-html';
 const GEditorExample = ()=>{
     const {id} = useParams()
-    const [html, sethtml] = useState("")
+    const [html, sethtml] = useState("") 
     const [css, setcss] = useState("")
     useEffect(()=>{
       Axios.get(`http://localhost:3001/html/${id}`).then(res=>{setcss(res.data["gjs-css"])
@@ -22,8 +24,6 @@ const GEditorExample = ()=>{
             pluginsOpts: {
               gjsPresetWebage: {},
             },
-            components: html,
-            style: css,
             storageManager: {
                 type: 'remote',
                 stepsBeforeSave: 1,
@@ -35,15 +35,14 @@ const GEditorExample = ()=>{
                 headers: {
                 'Content-Type': 'application/json',
                 },
+                urlLoad:  `http://localhost:3001/html/${id}`,
                 urlStore: `http://localhost:3001/getdata/${id}`,
                }
-          }); 
-    })
+          });  
+    }) 
     if(html != "")
-    {
-      return  <Suspense fallback="<h1>Loading...</h1>">
-        <div dangerouslySetInnerHTML={createMarkup()}></div>
-      </Suspense>
+    { 
+      return <div id="gjs"></div>
     }
     else return <h1>Loading...</h1>
 }
