@@ -20,6 +20,7 @@
     "pdf2html": "^2.5.2",
     "pdfjs-dist": "^2.8.335",
     "pdftohtmljs": "^0.6.0",
+    "phantom-html-to-pdf": "^0.6.1",
     "puppeteer": "^10.1.0",
     "react-pdf": "^5.3.0",
     "react-signature-canvas": "^1.0.3",
