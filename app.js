@@ -34,7 +34,7 @@ var storage = multer.diskStorage({
 })
 
 var upload = multer({storage: storage}).single("file")
-mongoose.connect('mongodb://CallingServiceUser:user0000912939123@ec2-3-8-84-88.eu-west-2.compute.amazonaws.com:27017/CallingService', {
+mongoose.connect('databaseurl', {
         useNewUrlParser: true,
         useUnifiedTopology: true,
         useFindAndModify: false,
