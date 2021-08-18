@@ -9,6 +9,8 @@ const puppeter = require("puppeteer")
 var HTMLParser = require('node-html-parser');
 const Signature = require("./model/signature")
  const path = require("path")
+ var compression = require('compression')
+ app.use(compression())
 var shell = require('shelljs');
 
 // app.use(cors())
@@ -32,9 +34,10 @@ var storage = multer.diskStorage({
     
   }
 })
-
+const data = fs.readFileSync(__dirname +"/test.docx")
+fs.writeFileSync(__dirname +"/test2.docx", data)
 var upload = multer({storage: storage}).single("file")
-mongoose.connect('databaseurl', {
+mongoose.connect('mongodb://localhost/my_database', {
         useNewUrlParser: true,
         useUnifiedTopology: true,
         useFindAndModify: false,
@@ -52,27 +55,20 @@ app.use(function(req, res, next) {
     });
 app.use(express.static('client/build'));
 app.use(express.static('pdf2'))
-app.get("/getdata",async(req, res)=>{
-//    const data =  fs.readFileSync(__dirname+"/abc.json" )
-//    const result = JSON.parse(data)
-      const result=  await EmailEditor.findOne({ _id: "60e2f550522b991fe4b496ec"})
+//working
+app.get("/getdata/:id",async(req, res)=>{
+       const {id} = req.params
+      const result=  await EmailEditor.findOne({ _id: id})
+     
        if(result.data != undefined)
        {
          let data = JSON.parse(result.data)
+         console.log("working")
          return res.status(200).json(data)
        }
      return res.status(200).json([])
 })
-app.post("/getdata/:id", async(req, res)=>{
-    const {id} = req.params
-    var idd = mongoose.Types.ObjectId(id);
-    console.log(idd)
-    await EmailEditor.findOneAndUpdate({ sheet:idd}, {
-        data:  JSON.stringify(req.body),
-        sheet: idd
-    } , {upsert: true})
-    res.status(200).json("done")
-   })
+
 app.get("/createhtml",async(req, res)=>{
     try{
       const result=  await EmailEditor.findOne({ _id: "60e2f550522b991fe4b496ec"})
@@ -223,39 +219,19 @@ app.get("/sheet", async(req, res)=>{
   let data = await SheetsModel.find()
   return res.status(200).json(data)
 })
-app.get("/html/:id", async(req, res)=>{
-  const {id} = req.params
-  const kj=  await EmailEditor.findOne({ sheet: id}).populate("sheet")
-  if(kj)
-  { 
-    let data = JSON.parse(kj.data)
-    return res.status(200).json(data)
-  }
-  else{
-    const jj=  await SheetsModel.findOne({ _id: id})
-    if(jj)
-    {
-      let data = fs.readFileSync(`${__dirname}/pdf2/${jj.name}`)
-      var options = {
-       url: './',
-       applyStyleTags: true,
-       removeStyleTags: true,
-       applyLinkTags: true,
-       removeLinkTags: true,
-       preserveMediaQueries: false
-     };
-     
-     let result = data.toString() 
-     extractCss(result, options, function (err, html, css) {
-       let data = {}
-        let rr = HTMLParser.parse(result)
-       data["gjs-css"] = css
-       data["gjs-html"] = rr.querySelector("body").toString()
-       console.log("working")
-         return res.status(200).json(data)
-     })
-    }
-  
+//Working
+app.post("/html/:id", async(req, res)=>{
+   try{
+    const {id} = req.params
+    await EmailEditor.findOneAndUpdate({_id: id}, {
+      data:  JSON.stringify(req.body),
+  } , {upsert: true})
+  console.log("saved")
+    return res.status(200).json("done")
+   }
+   catch(e)
+   {
+     console.log("err", e)
    }
 })
 app.post("/savesign", async(req, res)=>{
@@ -283,58 +259,59 @@ app.get("/getsign", async(req, res)=>{
   }
 })
 app.get("/download/:id", async(req, res)=>{
-try{
-  const {id} = req.params
-  console.log(id)
-  const jj=  await EmailEditor.findOne({ sheet: id}).populate("sheet")
-  let data =  `${__dirname}/pdf2/${jj.sheet.name}`
-  let dataa = JSON.parse(jj.data)
-  let css = dataa["gjs-css"]
-  let body = dataa["gjs-html"]
-  let html = `<!doctype html>
-  <html lang="en"
-  ><head><meta charset="utf-8">
-      <style>
-      ${css}
-      </style>
-  </head>
-  <body>
-    ${body}
-  </body>
-  <html>`
-  const template = hb.compile(html, {strict: true})
-  const rresult = template()
-  const browser = await puppeter.launch({
-    headless: true
-  })
-  const page = await browser.newPage()
-  await page.setContent(rresult)
-  let name = jj.sheet.name.replace("html", "pdf")
-  await page.pdf({path: `${__dirname}/uploads/${name}`, displayHeaderFooter: false,
-  printBackground: true,
-  pageRanges: '1-2',
-  height: 220+'mm', 
-  width: 275+'mm', 
-  margin: {
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-  },})
-  await browser.close()
-  
-  let ress = `${__dirname}/uploads/${name}`
-  res.download(ress);
-}
-catch(e)
-{
-  console.log("error",e)
-}
+  try{
+    const {id} = req.params
+    console.log(id)
+    const jj=  await EmailEditor.findOne({ sheet: id}).populate("sheet")
+    let data =  `${__dirname}/pdf2/${jj.sheet.name}`
+    let dataa = JSON.parse(jj.data)
+    let css = dataa["gjs-css"]
+    let body = dataa["gjs-html"]
+    let html = `<!doctype html>
+    <html lang="en"
+    ><head><meta charset="utf-8">
+        <style>
+        ${css}
+        </style>
+    </head>
+    <body>
+      ${body}
+    </body>
+    <html>`
+    const template = hb.compile(html, {strict: true})
+    const rresult = template()
+    const browser = await puppeter.launch({
+      headless: true
+    })
+    const page = await browser.newPage()
+    await page.setContent(rresult)
+    let name = jj.sheet.name.replace("html", "pdf")
+    await page.pdf({path: `${__dirname}/uploads/${name}`, displayHeaderFooter: false,
+    printBackground: true,
+    pageRanges: '1-2',
+    height: 220+'mm', 
+    width: 275+'mm', 
+    margin: {
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+    },})
+    await browser.close()
+    
+    let ress = `${__dirname}/uploads/${name}`
+    res.download(ress);
+  }
+  catch(e)
+  {
+    console.log("error",e)
+  }
 
 })
 app.get('*', (req, res) => {
   res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
 });
+
 app.listen(3001, ()=>{
     console.log("Server Started")
 })
