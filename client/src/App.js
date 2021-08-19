@@ -22,7 +22,7 @@ function App() {
       <Switch>
          <Route path="/" exact component={UPLOAD}></Route>
          <Route path="/grapes/:id" exact component={Grapes}></Route>
-         <Route path="/sheets" exact component={Sheets}></Route>
+         {/* <Route path="/sheets" exact component={Sheets}></Route> */}
          <Route path="/sign" exact component={Signature}></Route>
       </Switch>
     </Router>

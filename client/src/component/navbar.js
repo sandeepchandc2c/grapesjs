@@ -22,7 +22,7 @@ const Example = () => {
         <Collapse isOpen={isOpen} navbar>
           <Nav className="mr-auto" navbar>
             <NavItem>
-              <NavLink href="/sheets/"><h5>Sheets</h5></NavLink>
+              <NavLink href="/sign"><h5>sign</h5></NavLink>
             </NavItem>
             <NavItem>
             </NavItem>

@@ -251,7 +251,13 @@ app.post("/savesign", async(req, res)=>{
 app.get("/getsign", async(req, res)=>{
   try{
        const sign = await Signature.findOne()
-       return res.status(200).json(sign)
+       if(sign)
+       {
+        return res.status(200).json(sign)
+       }
+       else{
+        return res.status(200).json("done")
+       }
   }
   catch(e)
   {
