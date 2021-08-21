@@ -23,8 +23,12 @@ const Example = () => {
           <Nav className="mr-auto" navbar>
             <NavItem>
               <NavLink href="/sheets/"><h5>Sheets</h5></NavLink>
+               </NavItem>
+            <NavItem>
+              <NavLink href="/sign/"><h5>Sign</h5></NavLink>
             </NavItem>
             <NavItem>
+              <NavLink href="/autoSign/"><h5>autosign</h5></NavLink>
             </NavItem>
           </Nav>
         </Collapse>

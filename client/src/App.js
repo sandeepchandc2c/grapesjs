@@ -11,6 +11,8 @@ const UPLOAD = lazy(() => import("./view/upload"));
 const Grapes = lazy(()=>import("./view/Grapes"))
 const Sheets = lazy(()=>import("./view/Sheets"))
 const Signature = lazy(()=>import("./view/Signature"))
+
+const AutoSign = lazy(()=>import("./view/automaticsign"))
 function App() {
   return (
     <div>
@@ -24,6 +26,8 @@ function App() {
          <Route path="/grapes/:id" exact component={Grapes}></Route>
          <Route path="/sheets" exact component={Sheets}></Route>
          <Route path="/sign" exact component={Signature}></Route>
+         
+         <Route path="/autoSign" exact component={AutoSign}></Route>
       </Switch>
     </Router>
   </Suspense>

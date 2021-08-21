@@ -34,7 +34,7 @@ var storage = multer.diskStorage({
 })
 
 var upload = multer({storage: storage}).single("file")
-mongoose.connect('databaseurl', {
+mongoose.connect('mongodb://localhost/my_database', {
         useNewUrlParser: true,
         useUnifiedTopology: true,
         useFindAndModify: false,
@@ -272,6 +272,59 @@ app.post("/savesign", async(req, res)=>{
     console.log("err", e)
   }
 })
+
+app.get("/download/:id", async(req, res)=>{
+  try{
+    const {id} = req.params
+    console.log(id)
+    const jj=  await EmailEditor.findOne({ sheet: id}).populate("sheet")
+    let data =  `${__dirname}/pdf2/${jj.sheet.name}`
+    let dataa = JSON.parse(jj.data)
+    let css = dataa["gjs-css"]
+    let body = dataa["gjs-html"]
+    let html = `<!doctype html>
+    <html lang="en"
+    ><head><meta charset="utf-8">
+        <style>
+        ${css}
+        </style>
+    </head>
+    <body>
+      ${body}
+    </body>
+    <html>`
+    const template = hb.compile(html, {strict: true})
+    const rresult = template()
+    const browser = await puppeter.launch({
+      headless: true
+    })
+    const page = await browser.newPage()
+    await page.setContent(rresult)
+    let name = jj.sheet.name.replace("html", "pdf")
+    await page.pdf({path: `${__dirname}/uploads/${name}`, displayHeaderFooter: false,
+    printBackground: true,
+    pageRanges: '1-2',
+    height: 300+'mm', 
+    width: 275+'mm', 
+    margin: {
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+    },})
+    await browser.close()
+    
+    let ress = `${__dirname}/uploads/${name}`
+    res.download(ress);
+  }
+  catch(e)
+  {
+    console.log("error",e)
+  }
+
+})
+// replace the from and to signature 
+// with user's signatures
 app.get("/getsign", async(req, res)=>{
   try{
        const sign = await Signature.findOne()
@@ -282,60 +335,119 @@ app.get("/getsign", async(req, res)=>{
     console.log("err", e)
   }
 })
-app.get("/download/:id", async(req, res)=>{
-try{
-  const {id} = req.params
-  console.log(id)
-  const jj=  await EmailEditor.findOne({ sheet: id}).populate("sheet")
-  let data =  `${__dirname}/pdf2/${jj.sheet.name}`
-  let dataa = JSON.parse(jj.data)
-  let css = dataa["gjs-css"]
-  let body = dataa["gjs-html"]
-  let html = `<!doctype html>
-  <html lang="en"
-  ><head><meta charset="utf-8">
-      <style>
-      ${css}
-      </style>
-  </head>
-  <body>
-    ${body}
-  </body>
-  <html>`
-  const template = hb.compile(html, {strict: true})
-  const rresult = template()
-  const browser = await puppeter.launch({
-    headless: true
-  })
-  const page = await browser.newPage()
-  await page.setContent(rresult)
-  let name = jj.sheet.name.replace("html", "pdf")
-  await page.pdf({path: `${__dirname}/uploads/${name}`, displayHeaderFooter: false,
-  printBackground: true,
-  pageRanges: '1-2',
-  height: 220+'mm', 
-  width: 275+'mm', 
-  margin: {
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-  },})
-  await browser.close()
-  
-  let ress = `${__dirname}/uploads/${name}`
-  res.download(ress);
-}
-catch(e)
-{
-  console.log("error",e)
-}
+app.get("/from/:signid/:id", async(req, res)=>{
+  try{
+    const {signid, id} = req.params
+    const sign = await Signature.findOne({_id: signid})
+    const result=  await EmailEditor.findOne({ _id: id})
+       
+       if(result && result.data != undefined)
+       { 
+         let example = {}
+         let data = JSON.parse(result.data)
+         let css = data["gjs-css"]
+         let body = data["gjs-html"]
+        
+         let esign = sign.signature
+         let document = HTMLParser.parse(body)
+         const listItem = document.querySelector("#from");
+         const newItem = `<div id="from" ><img  width="30%"
+         height="20%" src=${esign}></img>
+         <div >From</div>
+         </div>`
+         body = body.replace(listItem,newItem)
+         let html = `<!doctype html>
+         <html lang="en"
+         ><head><meta charset="utf-8">
+             <style>
+             ${css}
+             </style>
+         </head>
+         <body>
+           ${body}
+         </body>
+         <html>`
+         const template = hb.compile(html, {strict: true})
+         const rresult = template(example)
+         let savedata = {}
+         savedata["gjs-css"] = css
+         savedata["gjs-html"] = body
+         result.data = JSON.stringify(savedata)
+         await result.save()
+         //save this to backend
+         return  res.send(rresult)
+       }
+  }
+  catch(e)
+  {
+    console.log("err", e)
+  }
+})
 
+app.get("/to/:signid/:id", async(req, res)=>{
+  try{  
+    const {signid, id} = req.params
+       const sign = await Signature.findOne({_id: signid})
+       const result=  await EmailEditor.findOne({ _id: id})
+        console.log(sign)
+       if(result && result.data != undefined)
+       { 
+         let example = {}
+         let data = JSON.parse(result.data)
+         let css = data["gjs-css"]
+         let body = data["gjs-html"]
+         
+        //To
+         let esign = sign.signature
+         let document = HTMLParser.parse(body)
+        //  const listItem1 = document.querySelector("#from");
+        //  const newItem1 = `<div id="from"><img src=${esign}></img>
+        //  <div>From</div>
+        //  </div>`
+        //  html = html.replace(listItem1,newItem1)
+         const listItem = document.querySelector("#to");
+         const newItem = `<div ><img src=${esign}></img>
+         <div id="to">To</div>
+         </div>`
+         // replace body to save data in backend 
+         body = body.replace(listItem,newItem)
+        // replace html html
+        let html = `<!doctype html>
+        <html lang="en"
+        ><head><meta charset="utf-8">
+            <style>
+            ${css}
+            </style>
+        </head>
+        <body>
+          ${body}
+        </body>
+        <html>`
+         const template = hb.compile(html, {strict: true})
+         const rresult = template(example)
+         let savedata = {}
+          savedata["gjs-css"] = css
+          savedata["gjs-html"] = body
+          result.data = JSON.stringify(savedata)
+          await result.save()
+         //save this to backend
+         return  res.send(rresult)
+       }
+  }
+  catch(e)
+  {
+    console.log("err", e)
+  }
 })
 app.get('*', (req, res) => {
   res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
 });
+
+
 app.listen(3001, ()=>{
     console.log("Server Started")
 })
-// cxawLcuWKItQAL4sS$uUgMHYRz9GC.GU
+
+
+// http://localhost:3001/from/611e03c4f9507e119843d14f/611e0e05c03a5361b3d7d466/
+// http://localhost:3001/to/611fa21ea33abb39dcf04088/611e0e05c03a5361b3d7d466

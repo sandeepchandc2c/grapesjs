@@ -15,8 +15,7 @@ function App() {
   /* a function that uses the canvas ref to clear the canvas 
   via a method given by react-signature-canvas */
   const clear = () => sigCanvas.current.clear();
-
-  console.log(imageURL)
+  
   const save = async() =>{
     setImageURL(sigCanvas.current.getTrimmedCanvas().toDataURL("image/png"));
     const data = {

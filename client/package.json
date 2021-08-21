@@ -13,6 +13,7 @@
     "grapesjs": "^0.17.19",
     "grapesjs-preset-webpage": "^0.1.11",
     "html-loader": "^2.1.2",
+    "jquery": "^3.6.0",
     "pdf-creator-node": "^2.2.2",
     "pdfjs-dist": "^2.8.335",
     "react": "^17.0.2",
@@ -23,6 +24,7 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
     "reactstrap": "^8.9.0",
+    "text-signature": "^1.1.2",
     "web-vitals": "^1.1.2"
   },
   "scripts": {
