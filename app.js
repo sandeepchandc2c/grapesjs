@@ -2,15 +2,17 @@ const express = require("express")
 const app = express()
 const fs = require("fs")
 const mongoose = require('mongoose');
-const EmailEditor = require("./model")
+const EmailEditor = require("./model/model")
 var extractCss = require('extract-css');
 const hb = require("handlebars")
 const puppeter = require("puppeteer")
 var HTMLParser = require('node-html-parser');
 const Signature = require("./model/signature")
- const path = require("path")
+const path = require("path")
+const Proposal = require("./model/proposal")
 var shell = require('shelljs');
-
+var uuidv4 = require('uuid/v4');
+const mailer = require("nodemailer");
 // app.use(cors())
 var multer  = require('multer')
 const SheetsModel = require("./model/sheets")
@@ -40,7 +42,7 @@ mongoose.connect('mongodb://localhost/my_database', {
         useFindAndModify: false,
         useCreateIndex: true
       });
-
+console.log(Proposal)
 app.use(express.json({ limit: '500mb' }))
 
 app.use(function(req, res, next) {
@@ -50,8 +52,12 @@ app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Credentials", true)
     next();
     });
+
+app.use('/pdf', express.static(path.join(__dirname, 'pdf2')))
+
+app.use('/static', express.static(path.join(__dirname, 'genpdf')))
 app.use(express.static('client/build'));
-app.use(express.static('pdf2'))
+
 app.get("/getdata",async(req, res)=>{
 //    const data =  fs.readFileSync(__dirname+"/abc.json" )
 //    const result = JSON.parse(data)
@@ -66,10 +72,13 @@ app.get("/getdata",async(req, res)=>{
 app.post("/getdata/:id", async(req, res)=>{
     const {id} = req.params
     var idd = mongoose.Types.ObjectId(id);
-    console.log(idd)
+    await SheetsModel.findOneAndUpdate({ _id:idd}, {
+      edit : true
+  } )
     await EmailEditor.findOneAndUpdate({ sheet:idd}, {
         data:  JSON.stringify(req.body),
-        sheet: idd
+        sheet: idd,
+        edit : true
     } , {upsert: true})
     res.status(200).json("done")
    })
@@ -328,17 +337,22 @@ app.get("/download/:id", async(req, res)=>{
 app.get("/getsign", async(req, res)=>{
   try{
        const sign = await Signature.findOne()
-       return res.status(200).json(sign)
-  }
+       if(sign)
+       {
+        return res.status(200).json(sign)
+      }
+      else{
+        return res.status(400).json("not found")
+      }
+       }
   catch(e)
   {
     console.log("err", e)
   }
 })
-app.get("/from/:signid/:id", async(req, res)=>{
+app.post("/esign/:id", async(req, res)=>{
   try{
-    const {signid, id} = req.params
-    const sign = await Signature.findOne({_id: signid})
+    const {id} = req.params
     const result=  await EmailEditor.findOne({ _id: id})
        
        if(result && result.data != undefined)
@@ -348,14 +362,37 @@ app.get("/from/:signid/:id", async(req, res)=>{
          let css = data["gjs-css"]
          let body = data["gjs-html"]
         
-         let esign = sign.signature
+        
          let document = HTMLParser.parse(body)
-         const listItem = document.querySelector("#from");
-         const newItem = `<div id="from" ><img  width="30%"
-         height="20%" src=${esign}></img>
-         <div >From</div>
-         </div>`
-         body = body.replace(listItem,newItem)
+         const listItem = document.querySelectorAll(".s1");
+         if(result.from == "click to sign" && listItem.length !=0)
+         {  
+            for(let i = 0; i < listItem.length; i++)
+            {
+              const name = "John Doe"
+              const newItem = `<div id="from" >${name}
+              </div>`
+              body = body.replace(listItem[i],newItem)
+              }
+          }
+         
+         else if(listItem.length !=0){
+           
+           const sign = await Signature.findOne({_id: "612479a20994e467d0e08af6"})
+           let esign = sign.signature
+           for(let i = 0; i < listItem.length; i++)
+           {
+              const newItem = `<div id="from" ><img  width="30%"
+              height="20%" src=${esign}></img>
+              </div>`
+              body = body.replace(listItem[i],newItem)
+             }
+           
+         }
+         else{
+           return res.status(400).json("signature not found")
+         }
+        
          let html = `<!doctype html>
          <html lang="en"
          ><head><meta charset="utf-8">
@@ -369,13 +406,36 @@ app.get("/from/:signid/:id", async(req, res)=>{
          <html>`
          const template = hb.compile(html, {strict: true})
          const rresult = template(example)
+         const browser = await puppeter.launch({
+           headless: true
+         })
+         const page = await browser.newPage()
+         await page.setContent(rresult)
+         let name =  uuidv4() + '.pdf'
+
+         await page.pdf({path: `${__dirname}/genpdf/${name}`, displayHeaderFooter: false,
+         printBackground: true,
+         pageRanges: '1-2',
+         height: 300+'mm', 
+         width: 275+'mm', 
+         margin: {
+           top: 0,
+           right: 0,
+           bottom: 0,
+           left: 0,
+         },})
+         await browser.close()
+         
+         let ress = `http://localhost:3001/static/${name}`
          let savedata = {}
          savedata["gjs-css"] = css
          savedata["gjs-html"] = body
-         result.data = JSON.stringify(savedata)
-         await result.save()
+         await Proposal.findOneAndUpdate({form: result._id }, {
+          data: JSON.stringify(savedata),
+          form: result._id
+         }, {upsert: true})
          //save this to backend
-         return  res.send(rresult)
+         return  res.status(200).json({data:ress })
        }
   }
   catch(e)
@@ -384,60 +444,110 @@ app.get("/from/:signid/:id", async(req, res)=>{
   }
 })
 
-app.get("/to/:signid/:id", async(req, res)=>{
-  try{  
-    const {signid, id} = req.params
-       const sign = await Signature.findOne({_id: signid})
-       const result=  await EmailEditor.findOne({ _id: id})
-        console.log(sign)
-       if(result && result.data != undefined)
-       { 
-         let example = {}
-         let data = JSON.parse(result.data)
-         let css = data["gjs-css"]
-         let body = data["gjs-html"]
+// app.get("/to/:signid/:id", async(req, res)=>{
+//   try{  
+//     const {signid, id} = req.params
+//        const sign = await Signature.findOne({_id: signid})
+//        const result=  await Proposal.findOne({ _id: id}).populate("form")
+//        if(result && result.data != undefined)
+//        { 
+//          let example = {}
+//          let data = JSON.parse(result.data)
+//          let css = data["gjs-css"]
+//          let body = data["gjs-html"]
          
-        //To
-         let esign = sign.signature
-         let document = HTMLParser.parse(body)
-        //  const listItem1 = document.querySelector("#from");
-        //  const newItem1 = `<div id="from"><img src=${esign}></img>
-        //  <div>From</div>
-        //  </div>`
-        //  html = html.replace(listItem1,newItem1)
-         const listItem = document.querySelector("#to");
-         const newItem = `<div ><img src=${esign}></img>
-         <div id="to">To</div>
-         </div>`
-         // replace body to save data in backend 
-         body = body.replace(listItem,newItem)
-        // replace html html
-        let html = `<!doctype html>
-        <html lang="en"
-        ><head><meta charset="utf-8">
-            <style>
-            ${css}
-            </style>
-        </head>
-        <body>
-          ${body}
-        </body>
-        <html>`
-         const template = hb.compile(html, {strict: true})
-         const rresult = template(example)
-         let savedata = {}
-          savedata["gjs-css"] = css
-          savedata["gjs-html"] = body
-          result.data = JSON.stringify(savedata)
-          await result.save()
-         //save this to backend
-         return  res.send(rresult)
-       }
+//         //To
+//          let esign = sign.signature
+//          let document = HTMLParser.parse(body)
+//         //  const listItem1 = document.querySelector("#from");
+//         //  const newItem1 = `<div id="from"><img src=${esign}></img>
+//         //  <div>From</div>
+//         //  </div>`
+//         //  html = html.replace(listItem1,newItem1)
+//          const listItem = document.querySelector("#to");
+//          const newItem = `<div ><img src=${esign}></img>
+//          </div>`
+//          // replace body to save data in backend 
+//          body = body.replace(listItem,newItem)
+//         // replace html html
+//         let html = `<!doctype html>
+//         <html lang="en"
+//         ><head><meta charset="utf-8">
+//             <style>
+//             ${css}
+//             </style>
+//         </head>
+//         <body>
+//           ${body}
+//         </body>
+//         <html>`
+//          const template = hb.compile(html, {strict: true})
+//          const rresult = template(example)
+//          let savedata = {}
+//           savedata["gjs-css"] = css
+//           savedata["gjs-html"] = body
+//           result.data = JSON.stringify(savedata)
+//           await result.save()
+//          //save this to backend
+//          return  res.send(result)
+//        }
+//   }
+//   catch(e)
+//   {
+//     console.log("err", e)
+//   }
+// })
+// signature configuration
+app.post("/configuration/:id", async(req, res)=>{
+  try{
+    const {id} = req.params
+    const data = await EmailEditor.findById(id)
+    const {from, assign} = req.body
+    if(data)
+    {
+      data.from = from 
+      data.assign = assign
+      await data.save()
+    }
+    return res.status(200).json(data)
   }
   catch(e)
   {
-    console.log("err", e)
+    console.log("error", e)
   }
+})
+app.post("/send/:id", async(req, res)=>{
+  const {id} = req.params
+  const exist=  await EmailEditor.findOne({ sheet: id})
+  const pass = encodeURIComponent("o6D%lojlcVjSvb");
+    console.log(exist.assign);
+    let transporter = await mailer.createTransport({
+      host: "smtp.zoho.in",
+
+      port: 465,
+      secure: true, // true for 465, false for other ports
+      auth: {
+        user: "noreply@mergecall.com", // generated ethereal user
+        pass: "o6D%lojlcVjSvb", // generated ethereal password
+      },
+    });
+    // console.log(transporter)
+    const url = `http://localhost:3000/esign/${exist._id}`;
+
+    const body = `
+            <p>Please click the link<p>
+            <a href=${url}>CLick here</a>
+            `;
+    let info = await transporter.sendMail({
+      from: "MergeCall <noreply@mergecall.com>", // sender address
+      to: exist.assign, // list of receivers
+      subject: "Esign", // Subject line
+      text: "", // plain text body
+      html: body, // html body
+    });
+
+    console.log("Message sent: %s", info.messageId);
+    return res.status(200).json("done")
 })
 app.get('*', (req, res) => {
   res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));

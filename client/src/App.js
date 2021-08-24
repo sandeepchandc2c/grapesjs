@@ -13,6 +13,8 @@ const Sheets = lazy(()=>import("./view/Sheets"))
 const Signature = lazy(()=>import("./view/Signature"))
 
 const AutoSign = lazy(()=>import("./view/automaticsign"))
+const Esign = lazy(()=>import("./view/Esign"))
+const Config = lazy(()=>import("./view/Config"))
 function App() {
   return (
     <div>
@@ -28,6 +30,8 @@ function App() {
          <Route path="/sign" exact component={Signature}></Route>
          
          <Route path="/autoSign" exact component={AutoSign}></Route>
+         <Route path="/config/:id" exact component={Config}></Route>
+         <Route path="/esign/:id" exact component={Esign}></Route>
       </Switch>
     </Router>
   </Suspense>

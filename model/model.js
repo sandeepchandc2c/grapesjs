@@ -5,6 +5,13 @@ const Editor = new  mongoose.Schema({
   sheet: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "sheets"
+  },
+  from: String,
+  to: String,
+  assign: String,
+  edit: {
+    type: Boolean,
+    default: false
   }
 }, {timestamps: true})
 module.exports =  mongoose.model('forms', Editor);

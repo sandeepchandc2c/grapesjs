@@ -28,7 +28,7 @@ const Example = () => {
               <NavLink href="/sign/"><h5>Sign</h5></NavLink>
             </NavItem>
             <NavItem>
-              <NavLink href="/autoSign/"><h5>autosign</h5></NavLink>
+              {/* <NavLink href="/autoSign/"><h5>autosign</h5></NavLink> */}
             </NavItem>
           </Nav>
         </Collapse>
