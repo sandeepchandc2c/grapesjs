@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+  font-family: Arial, Verdana;
+}
+
+#draggable {
+  width: 40px;
+  height: 40px;
+  background-color: green;
+  margin: 20px;
+}
+
+.wrapper {
+  display: flex;
+}
+
+.droptarget {
+  background-color: lightgray;
+  margin: 20px;
+  width: 560px;
+  height: 315px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid black;
+  position: relative;
+}
+
+.video-target-bigger span {
+  height: 350px;
+  display: flex;
+  align-items:center;
+}
+
+.droptarget span {
+  background-color: white;
+  border-radius: 2px;
+  padding: 5px 10px;
+  border: 3px dashed gray;
+  z-index: 2;
+}
+
+iframe {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  pointer-events: none;
+  left: 0;
+}
+
+iframe.invisible {
+  visibility: hidden;
+}
+
+
+    </style>
+</head>
+<body>
+    <div id="draggable" draggable=true></div>
+    <div class="wrapper">
+      <div class="droptarget">
+      
+        <iframe  width="560" height="315" src="http://localhost:3001/static/1626778619136-tata.html" frameborder="0" allowfullscreen></iframe>
+        <span id="droptarget"></span>
+        
+      </div>
+    
+     
+    </div>
+    
+<script>
+    function dragStart(event) {
+  event.dataTransfer.setData('text/plain', 'Dragging')
+event.target.style.borderRadius = '50% 50%';
+}
+
+function hover({target}) {
+  target.parentNode.style.borderColor = 'red';
+  target.style.backgroundColor = 'red';
+  target.style.color = 'white';
+}
+
+function leave({target}) {
+  target.parentNode.style.borderColor = 'purple';
+  target.style.backgroundColor = 'purple';
+  target.style.color = 'white';
+}
+
+
+document.getElementById('draggable').addEventListener('dragstart', dragStart)
+
+document.getElementById('droptarget').addEventListener('dragover', hover)
+document.getElementById('droptarget').addEventListener('dragleave', leave)
+
+document.getElementById('droptarget-iframe').addEventListener('dragover', hover)
+document.getElementById('droptarget-iframe').addEventListener('dragleave', leave)
+
+
+document.getElementById('droptarget-iframe-bigger').addEventListener('dragover', hover)
+document.getElementById('droptarget-iframe-bigger').addEventListener('dragleave', leave)
+
+</script>
+</body>
+</html>

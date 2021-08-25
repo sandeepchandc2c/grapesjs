@@ -350,6 +350,63 @@ app.get("/getsign", async(req, res)=>{
     console.log("err", e)
   }
 })
+app.get("/design/:id", async(req, res)=>{
+  try{
+    const {id} = req.params
+    const result=  await EmailEditor.findOne({ sheet: id})
+       
+       if(result && result.data != undefined)
+       { 
+         let example = {}
+         let data = JSON.parse(result.data)
+         let css = data["gjs-css"]
+         let body = data["gjs-html"]
+        
+        
+         let document = HTMLParser.parse(body)
+         const signature = document.querySelectorAll(".sign");
+         const initial = document.querySelectorAll(".intial");
+         const creat_date =  document.querySelectorAll(".date");
+         for(let i = 0; i < signature.length; i++)
+         {
+            const newItem = `<div  ><button className="btn btn-sm btn-success"  onClick={signature}>sign</button>
+            </div>`
+            body = body.replace(signature[i],newItem)
+           }
+           for(let i = 0; i < initial.length; i++)
+          {
+            const newItem = `<div  ><button className="btn btn-sm btn-success" onClick={initial}>initial</button>
+            </div>`
+            body = body.replace(initial[i],newItem)
+           }
+           for(let i = 0; i < creat_date.length; i++)
+           {
+             const newItem = `<div><span>{date}</span></button>
+             </div>`
+             body = body.replace(creat_date[i],newItem)
+            }
+           console.log("working")
+            let html = `<!doctype html>
+            <html lang="en"
+            ><head><meta charset="utf-8">
+                <style>
+                ${css}
+                </style>
+            </head>
+            <body>
+              ${body}
+            </body>
+            <html>`
+            const template = hb.compile(html, {strict: true})
+            const rresult = template(example)
+            res.send(rresult)
+       }
+  }
+  catch(e)
+  {
+    console.log("err", e)
+  }
+})
 app.post("/esign/:id", async(req, res)=>{
   try{
     const {id} = req.params
@@ -378,12 +435,11 @@ app.post("/esign/:id", async(req, res)=>{
          
          else if(listItem.length !=0){
            
-           const sign = await Signature.findOne({_id: "612479a20994e467d0e08af6"})
+           const sign = await Signature.findOne({_id: "6125ca92bdf4cc2934151133"})
            let esign = sign.signature
            for(let i = 0; i < listItem.length; i++)
            {
-              const newItem = `<div id="from" ><img  width="30%"
-              height="20%" src=${esign}></img>
+              const newItem = `<div id="from" ><img src=${esign}></img>
               </div>`
               body = body.replace(listItem[i],newItem)
              }
@@ -426,7 +482,7 @@ app.post("/esign/:id", async(req, res)=>{
          },})
          await browser.close()
          
-         let ress = `http://localhost:3001/static/${name}`
+         let ress = `http://localhost:3001/static/1626778619136-tata.html`
          let savedata = {}
          savedata["gjs-css"] = css
          savedata["gjs-html"] = body
