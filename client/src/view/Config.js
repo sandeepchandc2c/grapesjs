@@ -14,7 +14,10 @@ const Config = ()=>{
         <Col md={6}>
             <Card>
                 <CardBody>
-                    <center><Button onClick={save}>Sent</Button></center>
+                    <center><Button onClick={save}>Sent </Button></center>
+                    <center>
+                    <i>will sent the email to assigned user</i></center>
+                    
                 </CardBody>
             </Card>
         </Col>

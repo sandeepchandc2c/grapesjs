@@ -5,6 +5,7 @@ import reportWebVitals from './reportWebVitals';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "grapesjs/dist/css/grapes.min.css"
 import 'reactjs-popup/dist/index.css';
+import 'jquery-ui-dist/jquery-ui';
 ReactDOM.render(
   <React.StrictMode>
     <App />
