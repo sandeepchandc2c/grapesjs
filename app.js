@@ -350,43 +350,35 @@ app.get("/getsign", async(req, res)=>{
     console.log("err", e)
   }
 })
-app.get("/design/:id", async(req, res)=>{
-  try{
-    const {id} = req.params
-    const result=  await EmailEditor.findOne({ sheet: id})
-       
-       if(result && result.data != undefined)
-       { 
-         let example = {}
-         let data = JSON.parse(result.data)
-         let css = data["gjs-css"]
-         let body = data["gjs-html"]
-        
-        
-         let document = HTMLParser.parse(body)
-         const signature = document.querySelectorAll(".sign");
-         const initial = document.querySelectorAll(".intial");
-         const creat_date =  document.querySelectorAll(".date");
-         for(let i = 0; i < signature.length; i++)
-         {
-            const newItem = `<div  ><button className="btn btn-sm btn-success"  onClick={signature}>sign</button>
+app.get("/design/:id", async (req, res) => {
+  try {
+    const { id } = req.params
+    const result = await EmailEditor.findOne({ sheet: id })
+    if (result && result.data != undefined) {
+      let example = {}
+      let data = JSON.parse(result.data)
+      let css = data["gjs-css"]
+      let body = data["gjs-html"]
+      let document = HTMLParser.parse(body)
+      const signature = document.querySelectorAll(".sign");
+      const initial = document.querySelectorAll(".initial");
+      const creat_date = document.querySelectorAll(".date");
+      for (let i = 0; i < signature.length; i++) {
+        const newItem = `<div><button id=s${i} class="btn btn-sm btn-success sign" >sign</button>
             </div>`
-            body = body.replace(signature[i],newItem)
-           }
-           for(let i = 0; i < initial.length; i++)
-          {
-            const newItem = `<div  ><button className="btn btn-sm btn-success" onClick={initial}>initial</button>
+        body = body.replace(signature[i], newItem)
+      }
+      for (let i = 0; i < initial.length; i++) {
+        const newItem = `<div><button id=i${i} class="btn btn-sm btn-success intial">initial</button>
             </div>`
-            body = body.replace(initial[i],newItem)
-           }
-           for(let i = 0; i < creat_date.length; i++)
-           {
-             const newItem = `<div><span>{date}</span></button>
+        body = body.replace(initial[i], newItem)
+      }
+      for (let i = 0; i < creat_date.length; i++) {
+        const newItem = `<div><span id=d${i} class="date">{date}</span></button>
              </div>`
-             body = body.replace(creat_date[i],newItem)
-            }
-           console.log("working")
-            let html = `<!doctype html>
+        body = body.replace(creat_date[i], newItem)
+      }
+      let html = `<!doctype html>
             <html lang="en"
             ><head><meta charset="utf-8">
                 <style>
@@ -397,13 +389,12 @@ app.get("/design/:id", async(req, res)=>{
               ${body}
             </body>
             <html>`
-            const template = hb.compile(html, {strict: true})
-            const rresult = template(example)
-            res.send(rresult)
-       }
+      const template = hb.compile(html, { strict: true })
+      const rresult = template(example)
+      res.status(200).json({ data: html})
+    }
   }
-  catch(e)
-  {
+  catch (e) {
     console.log("err", e)
   }
 })
