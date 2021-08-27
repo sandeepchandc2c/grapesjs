@@ -26,7 +26,7 @@ const GEditorExample = ()=>{
                 'Content-Type': 'application/json',
                 },
                 urlLoad:  `http://localhost:3001/html/${id}`,
-                urlStore: `http://localhost:3001/getdata/${id}`,
+                urlStore: `http://localhost:3001/html/${id}`,
                }
           });  
     }) 

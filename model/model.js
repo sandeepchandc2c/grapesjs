@@ -6,9 +6,6 @@ const Editor = new  mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "sheets"
   },
-  from: String,
-  to: String,
-  assign: String,
   edit: {
     type: Boolean,
     default: false

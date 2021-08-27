@@ -31,7 +31,7 @@ function App() {
          
          <Route path="/autoSign" exact component={AutoSign}></Route>
          <Route path="/config/:id" exact component={Config}></Route>
-         <Route path="/esign/:id" exact component={Esign}></Route>
+         <Route path="/esign/:id/:user" exact component={Esign}></Route>
       </Switch>
     </Router>
   </Suspense>

@@ -23,7 +23,7 @@ function App({open, update}) {
     }
     update(data)
     // await axios.post("http://localhost:3001/savesign", data)
-    alert("saved!")
+
   }
 
   return (
