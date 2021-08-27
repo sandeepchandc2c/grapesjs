@@ -169,7 +169,7 @@ app.get("/download/:id", async(req, res)=>{
     await page.pdf({path: `${__dirname}/uploads/${name}`, displayHeaderFooter: false,
     printBackground: true,
     pageRanges: '1-2',
-    height: 300+'mm', 
+    height: 350+'mm', 
     width: 275+'mm', 
     margin: {
       top: 0,
